@@ -1,0 +1,12 @@
+.css-1t6c9ts {
+  margin-left: 120px;
+}
+
+.newpost {
+  margin-right: 120px !important;
+  font-weight: 700;
+  font-size: 20px;
+  padding: 10px;
+  background-image: linear-gradient(to right, #f2709c, #ff9472);
+  border-radius: 10px;
+}
