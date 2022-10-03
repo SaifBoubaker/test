@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   CssBaseline,
@@ -11,37 +11,36 @@ import {
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Link } from "react-router-dom";
-import { useFormik } from "formik";
-import * as Yup from "yup";
+
 import { login } from "../redux/slices/users/usersSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-const formSchema = Yup.object({
-  email: Yup.string().required("Email is required"),
-  password: Yup.string().required("Password is required"),
-});
 
 function Login(props) {
-  const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
-    onSubmit: (values) => {
-      dispatch(login(values));
-    },
-    validationSchema: formSchema,
-  });
+  const initialState = {
+    email: "",
+    password: "",
+  };
+
+  const [formValue, setFormValue] = useState(initialState);
+  const { email, password } = formValue;
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const storeData = useSelector((state) => state.user);
-  const { userAuth, appErr, serverErr } = storeData;
-  if (userAuth?._id) {
-    toast.success("Login Successfully");
-    navigate("/");
-  }
+  const { appErr, serverErr } = storeData;
+
+  const onInputChange = (e) => {
+    let { name, value } = e.target;
+    setFormValue({ ...formValue, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(login({ formValue, toast, navigate }));
+  };
+
   useEffect(() => {
     appErr && serverErr && toast.error(`${serverErr}-${appErr} `);
   }, [appErr, serverErr]);
@@ -67,12 +66,11 @@ function Login(props) {
             component="form"
             noValidate
             sx={{ mt: 1 }}
-            onSubmit={formik.handleSubmit}
+            onSubmit={handleSubmit}
           >
             <TextField
-              value={formik.values.email}
-              onChange={formik.handleChange("email")}
-              onBlur={formik.handleBlur("email")}
+              onChange={onInputChange}
+              value={email}
               margin="normal"
               required
               fullWidth
@@ -82,13 +80,10 @@ function Login(props) {
               autoComplete="email"
               autoFocus
             />
-            <Typography sx={{ color: "error.main" }}>
-              {formik.touched.email && formik.errors.email}
-            </Typography>
+
             <TextField
-              value={formik.values.password}
-              onChange={formik.handleChange("password")}
-              onBlur={formik.handleBlur("password")}
+              onChange={onInputChange}
+              value={password}
               margin="normal"
               required
               fullWidth
@@ -98,9 +93,7 @@ function Login(props) {
               id="password"
               autoComplete="current-password"
             />
-            <Typography sx={{ color: "error.main" }}>
-              {formik.touched.password && formik.errors.password}
-            </Typography>
+
             <Button
               type="submit"
               fullWidth

@@ -7,13 +7,16 @@ const postRoute = require("./routes/posts/PostRoutes");
 const commentRoute = require("./routes/comments/CommentRoutes");
 const emailRoute = require("./routes/email/emailMsgRoute");
 const categryRoute = require("./routes/category/categoryRoute");
+const fileupload = require("express-fileupload");
 
 const { errorHandler, notFound } = require("./middlewares/error/errorHandler");
 
 const app = express();
 app.use(cors());
 dotenv.config();
-app.use(express.json());
+app.use(express.json({ limit: "30mb", extended: true }));
+app.use(express.urlencoded({ limit: "30mb", extended: true }));
+app.use(fileupload({ useTempFiles: true }));
 
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoute);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Container,
   CssBaseline,
@@ -11,48 +11,43 @@ import {
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Link } from "react-router-dom";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { register } from "../redux/slices/users/usersSlice";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-const formSchema = Yup.object({
-  firstName: Yup.string().required("First Name is requried"),
-  lastName: Yup.string().required("Last Name is requried"),
-  email: Yup.string().required("Email is requried"),
-  password: Yup.string().required("Password is requried"),
-});
-
 function Register(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const formik = useFormik({
-    initialValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-    },
-    onSubmit: (values) => {
-      dispatch(register(values));
-    },
-    validationSchema: formSchema,
-  });
+
+  const initialState = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  };
+  const [formValue, setFormValue] = useState(initialState);
+  const { firstName, lastName, email, password } = formValue;
+
+  const onInputChange = (e) => {
+    let { name, value } = e.target;
+    setFormValue({ ...formValue, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (firstName && lastName && email && password) {
+      dispatch(register({ formValue, toast, navigate }));
+    }
+  };
 
   const storeData = useSelector((state) => state?.user);
-  const { appErr, serverErr, registerd } = storeData;
+  const { appErr, serverErr } = storeData;
 
   useEffect(() => {
     serverErr && appErr && toast.error(serverErr) && toast.error(appErr);
   }, [serverErr, appErr]);
-
-  if (registerd) {
-    toast.success("Registered Successfully");
-    navigate("/login");
-  }
 
   return (
     <>
@@ -76,14 +71,12 @@ function Register(props) {
             component="form"
             noValidate
             sx={{ mt: 3 }}
-            onSubmit={formik.handleSubmit}
+            onSubmit={handleSubmit}
           >
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  value={formik.values.firstName}
-                  onChange={formik.handleChange("firstName")}
-                  onBlur={formik.handleBlur("firstName")}
+                  onChange={onInputChange}
                   autoComplete="given-name"
                   name="firstName"
                   required
@@ -92,15 +85,10 @@ function Register(props) {
                   label="First Name"
                   autoFocus
                 />
-                <Typography sx={{ color: "error.main" }}>
-                  {formik.touched.firstName && formik.errors.firstName}
-                </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  value={formik.values.lastName}
-                  onChange={formik.handleChange("lastName")}
-                  onBlur={formik.handleBlur("lastName")}
+                  onChange={onInputChange}
                   required
                   fullWidth
                   id="lastName"
@@ -108,15 +96,10 @@ function Register(props) {
                   name="lastName"
                   autoComplete="family-name"
                 />
-                <Typography sx={{ color: "error.main" }}>
-                  {formik.touched.firstName && formik.errors.firstName}
-                </Typography>
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  value={formik.values.email}
-                  onChange={formik.handleChange("email")}
-                  onBlur={formik.handleBlur("email")}
+                  onChange={onInputChange}
                   required
                   fullWidth
                   id="email"
@@ -124,15 +107,10 @@ function Register(props) {
                   name="email"
                   autoComplete="email"
                 />
-                <Typography sx={{ color: "error.main" }}>
-                  {formik.touched.firstName && formik.errors.firstName}
-                </Typography>
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  value={formik.values.password}
-                  onChange={formik.handleChange("password")}
-                  onBlur={formik.handleBlur("password")}
+                  onChange={onInputChange}
                   required
                   fullWidth
                   name="password"
@@ -141,9 +119,6 @@ function Register(props) {
                   id="password"
                   autoComplete="new-password"
                 />
-                <Typography sx={{ color: "error.main" }}>
-                  {formik.touched.firstName && formik.errors.firstName}
-                </Typography>
               </Grid>
             </Grid>
             <Button

@@ -4,7 +4,10 @@ import axios from "axios";
 // register action
 export const register = createAsyncThunk(
   "/user/register",
-  async (userForm, { rejectWithValue, getState, dispatch }) => {
+  async (
+    { formValue, toast, navigate },
+    { rejectWithValue, getState, dispatch }
+  ) => {
     try {
       const config = {
         headers: {
@@ -14,10 +17,11 @@ export const register = createAsyncThunk(
 
       const { data } = await axios.post(
         "http://localhost:5000/api/users/register",
-        userForm,
+        formValue,
         config
       );
-
+      toast.success("Registred Successfully");
+      navigate("/login");
       return data;
     } catch (error) {
       if (!error?.response) {
@@ -31,7 +35,10 @@ export const register = createAsyncThunk(
 
 export const login = createAsyncThunk(
   "/user/login",
-  async (userForm, { rejectWithValue, getState, dispatch }) => {
+  async (
+    { formValue, toast, navigate },
+    { rejectWithValue, getState, dispatch }
+  ) => {
     try {
       const config = {
         headers: {
@@ -40,10 +47,13 @@ export const login = createAsyncThunk(
       };
       const { data } = await axios.post(
         "http://localhost:5000/api/users/login/",
-        userForm,
+        formValue,
         config
       );
       localStorage.setItem("userInfo", JSON.stringify(data));
+      toast.success("Login Successfully");
+      navigate("/");
+
       return data;
     } catch (error) {
       if (!error?.response) {

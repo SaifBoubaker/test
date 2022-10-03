@@ -8,36 +8,40 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { createCategory } from "../redux/slices/category/categorySlice";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 
-function AddCategory(props) {
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  deleteCategory,
+  getSingleCategory,
+  updateCategory,
+} from "../redux/slices/category/categorySlice";
+
+function UpdateCategory(props) {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const category = useSelector((state) => state.category);
+  const { getCategory } = category;
 
   const initialState = {
-    title: "",
+    title: getCategory?.title,
   };
+
   const [formValue, setFormValue] = useState(initialState);
   const { title } = formValue;
-
   const onInputChange = (e) => {
     let { name, value } = e.target;
     setFormValue({ ...formValue, [name]: value });
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(createCategory({ formValue, toast, navigate }));
+    dispatch(updateCategory({ title, id, toast, navigate }));
   };
-
-  const state = useSelector((state) => state.category);
-  const { appErr, serverErr } = state;
-
   useEffect(() => {
-    appErr && serverErr && toast.error(`${serverErr}-${appErr} `);
-  }, [appErr, serverErr]);
+    dispatch(getSingleCategory(id));
+  }, [dispatch, id]);
   return (
     <>
       <Container component="main" maxWidth="xs">
@@ -51,7 +55,7 @@ function AddCategory(props) {
           }}
         >
           <Typography component="h1" variant="h5">
-            Add New Category
+            Update Category
           </Typography>
           <Box
             component="form"
@@ -69,7 +73,7 @@ function AddCategory(props) {
                   required
                   fullWidth
                   id="title"
-                  label="New Category"
+                  label="Update Category"
                   autoFocus
                 />
               </Grid>
@@ -78,9 +82,22 @@ function AddCategory(props) {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              color="success"
+              sx={{ mt: 3 }}
             >
-              Add
+              Update
+            </Button>
+            <Button
+              onClick={() => {
+                dispatch(deleteCategory(id));
+              }}
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="error"
+              sx={{ mt: 1, mb: 2 }}
+            >
+              Delete
             </Button>
           </Box>
         </Box>
@@ -89,4 +106,4 @@ function AddCategory(props) {
   );
 }
 
-export default AddCategory;
+export default UpdateCategory;

@@ -9,7 +9,6 @@ const postSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      // required: [true, "Post Category is required"],
       default: "All",
     },
     isLiked: {

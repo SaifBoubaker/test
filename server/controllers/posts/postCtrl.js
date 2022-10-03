@@ -3,12 +3,19 @@ const UserModel = require("../../model/user/User");
 const expressAsyncHandler = require("express-async-handler");
 const valdiateMongodbId = require("../../config/ValidateMongodbID");
 const badwords = require("bad-words");
-const cloudinaryUploadImg = require("../../config/Cloudinary");
-const fs = require("fs");
+const cloudinary = require("cloudinary");
+const dotenv = require("dotenv");
+dotenv.config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_APIKEY,
+  api_secret: process.env.CLOUDINARY_SECRETKEY,
+});
 
 const createPostCtrl = expressAsyncHandler(async (req, res) => {
   const { id } = req.user;
-  const { title, description } = req.body;
+  const { title, description, category, image } = req.body;
   valdiateMongodbId(id);
 
   const check = new badwords();
@@ -25,18 +32,21 @@ const createPostCtrl = expressAsyncHandler(async (req, res) => {
     );
     throw new Error("You have been blocked due to using bad words");
   }
-  const localPath = `public/images/posts/${req.file.filename}`;
-  const img = await cloudinaryUploadImg(localPath);
 
   try {
+    const img = await cloudinary.uploader.upload(image, {
+      folder: "images",
+      resource_type: "auto",
+    });
+
     const post = await PostModel.create({
       title,
       description,
-      // image: img.url,
+      category,
+      image: img?.secure_url,
       user: id,
     });
     res.json(post);
-    fs.unlinkSync(localPath);
   } catch (error) {
     res.json(error);
   }

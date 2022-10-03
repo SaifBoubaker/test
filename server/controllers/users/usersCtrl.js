@@ -7,7 +7,6 @@ const valdiateMongodbId = require("../../config/ValidateMongodbID");
 const generateToken = require("../../middlewares/token/generateToken");
 const User = require("../../model/user/User");
 const sgMail = require("@sendgrid/mail");
-const cloudinaryUploadImg = require("../../config/Cloudinary");
 
 dotenv.config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -320,20 +319,20 @@ const passwordResetCtrl = expressAsyncHandler(async (req, res) => {
   res.json("password changed");
 });
 
-const profilePhotoUploadCtrl = expressAsyncHandler(async (req, res) => {
-  const { _id } = req.user;
-  const localPath = `public/images/profile/${req.file.filename}`;
-  const img = await cloudinaryUploadImg(localPath);
-  const user = await UserModel.findByIdAndUpdate(
-    _id,
-    {
-      profilePhoto: img.url,
-    },
-    { new: true }
-  );
-  res.json(user);
-  fs.unlinkSync(localPath);
-});
+// const profilePhotoUploadCtrl = expressAsyncHandler(async (req, res) => {
+//   const { _id } = req.user;
+//   const localPath = `public/images/profile/${req.file.filename}`;
+//   const img = await cloudinaryUploadImg(localPath);
+//   const user = await UserModel.findByIdAndUpdate(
+//     _id,
+//     {
+//       profilePhoto: img.url,
+//     },
+//     { new: true }
+//   );
+//   res.json(user);
+//   fs.unlinkSync(localPath);
+// });
 
 module.exports = {
   userRegisterCtrl,
@@ -352,5 +351,4 @@ module.exports = {
   accountVerificationCtrl,
   forgetPasswordToken,
   passwordResetCtrl,
-  profilePhotoUploadCtrl,
 };

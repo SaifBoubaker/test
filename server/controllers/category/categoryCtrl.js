@@ -18,7 +18,9 @@ const createCategory = expressAsyncHandler(async (req, res) => {
 
 const getAllCategories = expressAsyncHandler(async (req, res) => {
   try {
-    const categories = await CategoryModel.find({}).sort("-createdAt");
+    const categories = await CategoryModel.find({})
+      .sort("-createdAt")
+      .populate("user");
     res.json(categories);
   } catch (error) {
     res.json(error);
@@ -29,7 +31,7 @@ const getSingleCategoryCtrl = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
   valdiateMongodbId(id);
   try {
-    const category = await CategoryModel.findById(id);
+    const category = await CategoryModel.findById(id).populate("user");
     res.json(category);
   } catch (error) {
     res.json(error);
