@@ -11,11 +11,13 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
+
 import ImportContactsOutlinedIcon from "@mui/icons-material/ImportContactsOutlined";
 import { Link } from "react-router-dom";
 import "./PrivateNavbar.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../../redux/slices/users/usersSlice";
+import { Grid } from "@mui/material";
 
 const styles = {
   largeIcon: {
@@ -27,33 +29,29 @@ const styles = {
 
 const PrivateNavbar = () => {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  const { userAuth } = user;
 
   let pages = [
     <Link to="/" style={{ textDecoration: "none", color: "currentColor" }}>
-      Home
-    </Link>,
-    <Link to="/posts" style={{ textDecoration: "none", color: "currentColor" }}>
       POSTS
-    </Link>,
-    <Link to="/users" style={{ textDecoration: "none", color: "currentColor" }}>
-      Authors
     </Link>,
   ];
   let settings = [
     <Link
-      to="/profile"
+      to={`/update-profile/${userAuth?._id}`}
       style={{ textDecoration: "none", color: "currentColor" }}
     >
-      My Profile
+      Update Profile
     </Link>,
     <Link
-      to="/update-password"
+      to={`/change-password/${userAuth?._id}`}
       style={{ textDecoration: "none", color: "currentColor" }}
     >
-      Change Password
+      Change password
     </Link>,
     <Link
-      to="/"
+      to="/posts"
       onClick={() => {
         dispatch(logout());
       }}
@@ -163,10 +161,15 @@ const PrivateNavbar = () => {
             Add Post
           </Typography>
 
-          <Box sx={{ flexGrow: 0 }}>
+          <Box sx={{ flexGrow: 0, display: "flex" }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar alt="User" src={userAuth?.profilePhoto} />
+                <Grid>
+                  <Typography style={{ marginLeft: "8px" }}>
+                    {`${userAuth?.firstName} ${userAuth?.lastName}`}
+                  </Typography>
+                </Grid>
               </IconButton>
             </Tooltip>
 

@@ -13,36 +13,36 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  deleteCategory,
-  getSingleCategory,
-  updateCategory,
-} from "../redux/slices/category/categorySlice";
+  getSingleComment,
+  updateComment,
+} from "../redux/slices/comments/commentSlice";
 
-function UpdateCategory(props) {
+function UpdateComment(props) {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const category = useSelector((state) => state.category);
-
-  const { getCategory } = category;
-
+  const comment = useSelector((state) => state.comment);
+  const { singleComment } = comment;
   const initialState = {
-    title: getCategory?.title,
+    description: singleComment?.description,
   };
+  useEffect(() => {
+    dispatch(getSingleComment(id));
+  }, [dispatch, id]);
+
+  const postId = singleComment?.post;
 
   const [formValue, setFormValue] = useState(initialState);
-  const { title } = formValue;
+  const { description } = formValue;
   const onInputChange = (e) => {
     let { name, value } = e.target;
     setFormValue({ ...formValue, [name]: value });
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(updateCategory({ title, id, toast, navigate }));
+    dispatch(updateComment({ id, toast, navigate, description, postId }));
   };
-  useEffect(() => {
-    dispatch(getSingleCategory(id));
-  }, [dispatch, id]);
+
   return (
     <>
       <Container component="main" maxWidth="xs">
@@ -56,7 +56,7 @@ function UpdateCategory(props) {
           }}
         >
           <Typography component="h1" variant="h5">
-            Update Category
+            Update Comment
           </Typography>
           <Box
             component="form"
@@ -68,13 +68,13 @@ function UpdateCategory(props) {
               <Grid item xs={12}>
                 <TextField
                   onChange={onInputChange}
-                  value={title}
+                  value={description}
                   autoComplete="given-name"
-                  name="title"
+                  name="description"
                   required
                   fullWidth
-                  id="title"
-                  label="Update Category"
+                  id="description"
+                  label="Update Comment"
                   autoFocus
                 />
               </Grid>
@@ -88,18 +88,6 @@ function UpdateCategory(props) {
             >
               Update
             </Button>
-            <Button
-              onClick={() => {
-                dispatch(deleteCategory(id));
-              }}
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="error"
-              sx={{ mt: 1, mb: 2 }}
-            >
-              Delete
-            </Button>
           </Box>
         </Box>
       </Container>
@@ -107,4 +95,4 @@ function UpdateCategory(props) {
   );
 }
 
-export default UpdateCategory;
+export default UpdateComment;

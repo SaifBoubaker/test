@@ -10,25 +10,34 @@ import {
   NativeSelect,
   FormControl,
 } from "@mui/material";
-import FileBase from "react-file-base64";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getCategories } from "../redux/slices/category/categorySlice";
-import { createPost } from "../redux/slices/posts/postSlice";
 import { toast } from "react-toastify";
-import LinearProgress from "@mui/material/LinearProgress";
+import { getsinglePost, updatePost } from "../redux/slices/posts/postSlice";
 
-function AddPost(props) {
+function UpdatePost(props) {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const initialState = {
-    title: "",
-    category: "",
-    description: "",
-  };
+  useEffect(() => {
+    dispatch(getCategories());
+  }, [dispatch]);
+  useEffect(() => {
+    dispatch(getsinglePost(id));
+  }, [dispatch, id]);
+  const allCategory = useSelector((state) => state.category);
+  const { categoryList } = allCategory;
+  const post = useSelector((state) => state.post);
+  const { singlePost } = post;
 
+  const initialState = {
+    title: singlePost?.title,
+    category: "",
+    description: singlePost?.description,
+  };
   const [formValue, setFormValue] = useState(initialState);
   const { title, category, description } = formValue;
 
@@ -36,18 +45,12 @@ function AddPost(props) {
     let { name, value } = e.target;
     setFormValue({ ...formValue, [name]: value });
   };
+  console.log(formValue);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(createPost({ formValue, toast, navigate }));
+    dispatch(updatePost({ formValue, navigate, toast, id }));
   };
-  useEffect(() => {
-    dispatch(getCategories());
-  }, [dispatch]);
-  const allCategory = useSelector((state) => state.category);
-  const { categoryList } = allCategory;
-
-  const post = useSelector((state) => state.post);
-  const { loading } = post;
 
   return (
     <>
@@ -62,7 +65,7 @@ function AddPost(props) {
           }}
         >
           <Typography component="h1" variant="h5">
-            Create New Post
+            Update Your Post
           </Typography>
           <Box
             component="form"
@@ -115,34 +118,22 @@ function AddPost(props) {
                   autoFocus
                 />
               </Grid>
-              <Grid item xs={12}>
-                <FileBase
-                  multiple={false}
-                  type="file"
-                  onDone={({ base64 }) => {
-                    setFormValue({ ...formValue, image: base64 });
-                  }}
-                />
-              </Grid>
+              <Grid item xs={12}></Grid>
             </Grid>
-            <br />
-            {loading === true ? (
-              <LinearProgress />
-            ) : (
-              <Button
-                style={{
-                  backgroundImage:
-                    "linear-gradient(to right, #f2709c, #ff9472)",
-                }}
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="success"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Add Post
-              </Button>
-            )}
+
+            <Button
+              style={{
+                backgroundImage: "linear-gradient(to right, #f2709c, #ff9472)",
+              }}
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="success"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Update Post
+            </Button>
+            {/* )} */}
           </Box>
         </Box>
       </Container>
@@ -150,4 +141,4 @@ function AddPost(props) {
   );
 }
 
-export default AddPost;
+export default UpdatePost;

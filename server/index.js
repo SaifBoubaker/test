@@ -8,7 +8,7 @@ const commentRoute = require("./routes/comments/CommentRoutes");
 const emailRoute = require("./routes/email/emailMsgRoute");
 const categryRoute = require("./routes/category/categoryRoute");
 const fileupload = require("express-fileupload");
-
+const path = require("path");
 const { errorHandler, notFound } = require("./middlewares/error/errorHandler");
 
 const app = express();
@@ -23,6 +23,11 @@ app.use("/api/posts", postRoute);
 app.use("/api/comment", commentRoute);
 app.use("/api/email", emailRoute);
 app.use("/api/category", categryRoute);
+
+app.use(express.static(path.join(__dirname, "../", "client", "build")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../", "client", "build", "index.html"));
+});
 
 app.use(notFound);
 app.use(errorHandler);

@@ -31,7 +31,7 @@ userRoutes.put("/do/follow", authMiddleware, followingUserCtrl);
 userRoutes.put("/do/block/:id", authMiddleware, blockUserCtrl);
 userRoutes.put("/do/unblock/:id", authMiddleware, unBlockUserCtrl);
 userRoutes.put("/do/unfollow", authMiddleware, unfollowUserCtrl);
-userRoutes.put("/change/password/", authMiddleware, updateUserPasswordCtrl);
+userRoutes.put("/change-password/:id", authMiddleware, updateUserPasswordCtrl);
 userRoutes.post("/do/generate-password-token", forgetPasswordToken);
 userRoutes.put("/do/reset-password", passwordResetCtrl);
 userRoutes.post(
@@ -40,12 +40,6 @@ userRoutes.post(
   generateVerificationTokenCtrl
 );
 userRoutes.put("/do/verify-account", authMiddleware, accountVerificationCtrl);
-// userRoutes.put(
-//   "/do/upload-profile-photo",
-//   authMiddleware,
-
-//   profilePhotoUploadCtrl
-// );
 
 userRoutes.delete("/:id", deleteUserCtrl);
 userRoutes.get("/:id", authMiddleware, getUserCtrl);

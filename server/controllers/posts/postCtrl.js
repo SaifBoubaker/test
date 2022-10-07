@@ -53,10 +53,17 @@ const createPostCtrl = expressAsyncHandler(async (req, res) => {
 });
 
 const getAllPosts = expressAsyncHandler(async (req, res) => {
+  const hasCategory = req.query.category;
   try {
-    const posts = await PostModel.find({}).populate("user");
-
-    res.json(posts);
+    if (hasCategory) {
+      const posts = await PostModel.find({ category: hasCategory }).populate(
+        "user"
+      );
+      res.json(posts);
+    } else {
+      const posts = await PostModel.find({}).populate("user");
+      res.json(posts);
+    }
   } catch (error) {
     res.json(error);
   }
@@ -66,7 +73,9 @@ const getPostCtrl = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
   valdiateMongodbId(id);
   try {
-    const post = await PostModel.findById(id).populate("user");
+    const post = await PostModel.findById(id)
+      .populate("user")
+      .populate("comments");
     await PostModel.findByIdAndUpdate(
       id,
       {

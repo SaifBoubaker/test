@@ -15,9 +15,6 @@ import "./PublicNavbar.css";
 
 let pages = [
   <Link to="/" style={{ textDecoration: "none", color: "currentColor" }}>
-    Home
-  </Link>,
-  <Link to="/posts" style={{ textDecoration: "none", color: "currentColor" }}>
     POSTS
   </Link>,
 ];

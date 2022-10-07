@@ -1,5 +1,4 @@
 const UserModel = require("../../model/user/User");
-const fs = require("fs");
 const dotenv = require("dotenv");
 const crypto = require("crypto");
 const expressAsyncHandler = require("express-async-handler");
@@ -7,8 +6,15 @@ const valdiateMongodbId = require("../../config/ValidateMongodbID");
 const generateToken = require("../../middlewares/token/generateToken");
 const User = require("../../model/user/User");
 const sgMail = require("@sendgrid/mail");
-
+const cloudinary = require("cloudinary");
 dotenv.config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_APIKEY,
+  api_secret: process.env.CLOUDINARY_SECRETKEY,
+});
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const userRegisterCtrl = expressAsyncHandler(async (req, res) => {
@@ -97,17 +103,21 @@ const userProfileCtrl = expressAsyncHandler(async (req, res) => {
 });
 
 const updateProfileCtrl = expressAsyncHandler(async (req, res) => {
-  const { _id } = req?.user;
-  valdiateMongodbId(_id);
-  const { firstName, lastName, email, bio } = req.body;
+  const { firstName, lastName, image } = req.body;
+  const { id } = req.params;
+  valdiateMongodbId(id);
   try {
+    const img = await cloudinary.uploader.upload(image, {
+      folder: "images",
+      resource_type: "auto",
+    });
     const oldUser = await UserModel.findByIdAndUpdate(
-      _id,
+      id,
       {
-        firstName,
-        lastName,
-        email,
-        bio,
+        firstName: firstName,
+        lastName: lastName,
+
+        profilePhoto: img?.secure_url,
       },
       {
         new: true,
@@ -121,7 +131,7 @@ const updateProfileCtrl = expressAsyncHandler(async (req, res) => {
 });
 
 const updateUserPasswordCtrl = expressAsyncHandler(async (req, res) => {
-  const { id } = req?.user;
+  const { id } = req.params;
   const { password } = req.body;
   valdiateMongodbId(id);
   const user = await User.findById(id);
@@ -318,21 +328,6 @@ const passwordResetCtrl = expressAsyncHandler(async (req, res) => {
   await user.save();
   res.json("password changed");
 });
-
-// const profilePhotoUploadCtrl = expressAsyncHandler(async (req, res) => {
-//   const { _id } = req.user;
-//   const localPath = `public/images/profile/${req.file.filename}`;
-//   const img = await cloudinaryUploadImg(localPath);
-//   const user = await UserModel.findByIdAndUpdate(
-//     _id,
-//     {
-//       profilePhoto: img.url,
-//     },
-//     { new: true }
-//   );
-//   res.json(user);
-//   fs.unlinkSync(localPath);
-// });
 
 module.exports = {
   userRegisterCtrl,

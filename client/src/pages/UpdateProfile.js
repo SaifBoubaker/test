@@ -6,31 +6,29 @@ import {
   Grid,
   TextField,
   Button,
-  InputLabel,
-  NativeSelect,
-  FormControl,
 } from "@mui/material";
 import FileBase from "react-file-base64";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { getCategories } from "../redux/slices/category/categorySlice";
-import { createPost } from "../redux/slices/posts/postSlice";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import LinearProgress from "@mui/material/LinearProgress";
+import { updateProfile } from "../redux/slices/users/usersSlice";
 
-function AddPost(props) {
+function UpdateProfile(props) {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const initialState = {
-    title: "",
-    category: "",
-    description: "",
+    firstName: "",
+    lastName: "",
   };
+  const user = useSelector((state) => state.user);
 
+  const { loading } = user;
   const [formValue, setFormValue] = useState(initialState);
-  const { title, category, description } = formValue;
+  const { firstName, lastName } = formValue;
 
   const onInputChange = (e) => {
     let { name, value } = e.target;
@@ -38,16 +36,12 @@ function AddPost(props) {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(createPost({ formValue, toast, navigate }));
+    if ((firstName, lastName)) {
+      dispatch(updateProfile({ formValue, id, navigate, toast }));
+    } else {
+      toast.error("firstName and lastName are missing");
+    }
   };
-  useEffect(() => {
-    dispatch(getCategories());
-  }, [dispatch]);
-  const allCategory = useSelector((state) => state.category);
-  const { categoryList } = allCategory;
-
-  const post = useSelector((state) => state.post);
-  const { loading } = post;
 
   return (
     <>
@@ -62,7 +56,7 @@ function AddPost(props) {
           }}
         >
           <Typography component="h1" variant="h5">
-            Create New Post
+            Update your Profile
           </Typography>
           <Box
             component="form"
@@ -74,48 +68,32 @@ function AddPost(props) {
               <Grid item xs={12}>
                 <TextField
                   onChange={onInputChange}
-                  value={title}
+                  value={firstName}
                   autoComplete="given-name"
-                  name="title"
+                  name="firstName"
                   required
                   fullWidth
-                  id="title"
-                  label="Title"
+                  id="firstName"
+                  label="FirstName"
                   autoFocus
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl variant="standard" fullWidth>
-                  <InputLabel htmlFor="demo-customized-select-native">
-                    Category
-                  </InputLabel>
-                  <NativeSelect
-                    name="category"
-                    id="demo-customized-select-native"
-                    onChange={onInputChange}
-                    value={category}
-                  >
-                    <option></option>
-                    {categoryList?.map((item) => (
-                      <option> {item.title} </option>
-                    ))}
-                  </NativeSelect>
-                </FormControl>
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   onChange={onInputChange}
-                  value={description}
-                  name="description"
+                  value={lastName}
+                  autoComplete="given-name"
+                  name="lastName"
                   required
                   fullWidth
-                  id="description"
-                  label="Description"
-                  multiline
+                  id="lastName"
+                  label="LastName"
                   autoFocus
                 />
               </Grid>
+
               <Grid item xs={12}>
+                <Typography>Avatar Image</Typography>
                 <FileBase
                   multiple={false}
                   type="file"
@@ -140,7 +118,7 @@ function AddPost(props) {
                 color="success"
                 sx={{ mt: 3, mb: 2 }}
               >
-                Add Post
+                Update
               </Button>
             )}
           </Box>
@@ -150,4 +128,4 @@ function AddPost(props) {
   );
 }
 
-export default AddPost;
+export default UpdateProfile;

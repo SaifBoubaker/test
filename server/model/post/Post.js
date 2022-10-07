@@ -4,7 +4,7 @@ const postSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      // required: [true, "Post Title is required"],
+      required: [true, "Post Title is required"],
       trim: true,
     },
     category: {
@@ -60,6 +60,12 @@ const postSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+postSchema.virtual("comments", {
+  ref: "Comment",
+  foreignField: "post",
+  localField: "_id",
+});
 
 const Post = mongoose.model("Post", postSchema);
 
